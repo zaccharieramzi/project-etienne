@@ -111,6 +111,13 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         print('The data meeting the conditions is the following (might be truncated for readability):')
         print(df_queried)
     print('Now summarizing this information')
+    # format the queried df in order to prepare for summary
+    # Before formatting age compute the mean and std
+    df_queried_formatted = df_queried.copy()
+    age_col = df_queried_formatted[AGE_COL]
+    mean_age = np.mean(age_col)
+    std_age = np.std(age_col)
+    df_queried_formatted[AGE_COL] = np.floor(age_col)
     # summaries for each column
     # we can filter out elements that are in the config and those not worth
     n_queried = len(df_queried)
@@ -121,6 +128,10 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         ]
         for col_name in df_visits.columns
     }
+    results_formatted[AGE_COL] += [
+        f'Mean: {mean_age},'
+        f'Std: {std_age},'
+    ]
     df_results = pd.DataFrame.from_dict(results_formatted, orient='index')
     df_results = df_results.transpose()
     print(SEP)
