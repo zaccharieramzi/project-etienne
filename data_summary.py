@@ -117,7 +117,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     age_col = df_queried_formatted[AGE_COL]
     mean_age = np.mean(age_col)
     std_age = np.std(age_col)
-    df_queried_formatted[AGE_COL] = np.floor(age_col)
+    df_queried_formatted[AGE_COL] = np.floor(age_col).astype(int)
     # summaries for each column
     # we can filter out elements that are in the config and those not worth
     n_queried = len(df_queried)
