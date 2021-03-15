@@ -60,7 +60,7 @@ def build_query(config_value, column_name, df):
     return new_query
 
 def format_value(value, col_name):
-    if pd.isna(value):
+    if pd.isna(value) or value in ['nan', '<NA>']:
         return NAN_SUMMARY_NAME
     elif isinstance(value, float):
         if int(value) == value:
@@ -68,10 +68,18 @@ def format_value(value, col_name):
         else:
             return f'{value:.2f}'
     else:
-        return value
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                value = float(value)
+            except ValueError:
+                return value
+            else:
+                return f'{value:.2f}'
 
-def get_ordered_value_counts(series):
-    vc = series.value_counts(dropna=False)
+def get_ordered_value_counts(series, col_name):
+    vc = series.apply(str).value_counts(dropna=False)
     try:
         ovc = vc.sort_index(
             ascending=False
@@ -81,7 +89,7 @@ def get_ordered_value_counts(series):
         )
     except TypeError:
         try:
-            ovc = get_ordered_value_counts(pd.to_datetime(series))
+            ovc = get_ordered_value_counts(pd.to_datetime(series), col_name)
         except (TypeError, ParserError):
             return vc
     return ovc
@@ -152,7 +160,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     results_formatted = {
         col_name: [
             f'{format_value(i, col_name)}: {v} / {n_queried}'
-            for i, v in get_ordered_value_counts(df_queried_formatted[col_name]).iteritems()
+            for i, v in get_ordered_value_counts(df_queried_formatted[col_name], col_name).iteritems()
         ]
         for col_name in df_queried_formatted.columns
     }
