@@ -124,13 +124,13 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     results_formatted = {
         col_name: [
             f'{format_value(i, col_name)}: {v} / {n_queried}'
-            for i, v in df_queried[col_name].value_counts(dropna=False).iteritems()
+            for i, v in df_queried_formatted[col_name].value_counts(dropna=False).iteritems()
         ]
         for col_name in df_visits.columns
     }
     results_formatted[AGE_COL] += [
-        f'Mean: {mean_age},'
-        f'Std: {std_age},'
+        f'Mean: {mean_age}',
+        f'Std: {std_age}',
     ]
     df_results = pd.DataFrame.from_dict(results_formatted, orient='index')
     df_results = df_results.transpose()
