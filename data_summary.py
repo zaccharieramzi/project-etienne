@@ -1,3 +1,5 @@
+from dateutil.parser._parser import ParserError
+
 import click
 import numpy as np
 import pandas as pd
@@ -80,7 +82,7 @@ def get_ordered_value_counts(series):
     except TypeError:
         try:
             ovc = get_ordered_value_counts(pd.to_datetime(series))
-        except TypeError:
+        except (TypeError, ParserError):
             return vc
     return ovc
 
