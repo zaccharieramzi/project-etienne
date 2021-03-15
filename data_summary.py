@@ -62,6 +62,17 @@ def format_value(value, col_name):
     else:
         return value
 
+def get_ordered_value_counts(series):
+    ovc = series.value_counts(
+        dropna=False
+    ).sort_index(
+        ascending=False
+    ).sort_values(
+        ascending=False,
+        kind='mergesort',
+    )
+    return ovc
+
 SEP = "*"*100
 
 def summarize_data(visits_file_name, config_file_name, results_file_name, verbose=False):
@@ -124,7 +135,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     results_formatted = {
         col_name: [
             f'{format_value(i, col_name)}: {v} / {n_queried}'
-            for i, v in df_queried_formatted[col_name].value_counts(dropna=False).iteritems()
+            for i, v in get_ordered_value_counts(df_queried_formatted[col_name]).iteritems()
         ]
         for col_name in df_visits.columns
     }
