@@ -129,8 +129,8 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         for col_name in df_visits.columns
     }
     results_formatted[AGE_COL] += [
-        f'Mean: {mean_age}',
-        f'Std: {std_age}',
+        f'Mean: {mean_age:.4f}',
+        f'Std: {std_age:.4f}',
     ]
     df_results = pd.DataFrame.from_dict(results_formatted, orient='index')
     df_results = df_results.transpose()
