@@ -15,12 +15,12 @@ def read_order_relationship(config_value):
 
 def parse_config(config_value, column_name):
     if isinstance(config_value, (np.int64, float, int, np.float64)):
-        return [int(config_value)]
+        return [str(config_value)]
     config_value = config_value.split(';')
     config_value = [cv.strip() for cv in config_value]
     if column_name not in [AGE_COL, VISITS_DATE_COL]:
         try:
-            config_value = [int(cv) for cv in config_value]
+            config_value = [str(cv) for cv in config_value]
         except ValueError:
             pass
     elif column_name == VISITS_DATE_COL:
@@ -30,9 +30,27 @@ def parse_config(config_value, column_name):
         config_value = [read_order_relationship(cv) for cv in config_value]
     return config_value
 
+def normalize_str_series(series):
+    normalized_series = series.str.normalize(
+        'NFKD',
+    ).str.encode(
+        'ascii',
+        errors='ignore',
+    ).str.decode(
+        'utf-8',
+    ).str.strip().str.lower()
+    return normalized_series
+
 def build_query(config_value, column_name, df):
     if column_name not in [AGE_COL, VISITS_DATE_COL]:
-        new_query = df[column_name].isin(config_value)
+        normalized_column = normalize_str_series(df[column_name])
+        new_query = None
+        for cv in config_value:
+            cv_query = normalized_column.str.contains(cv.lower().strip())
+            if new_query is None:
+                new_query = cv_query
+            else:
+                new_query = new_query | cv_query
     elif column_name == VISITS_DATE_COL:
         lower_bound = config_value[0]
         new_query = pd.to_datetime(df[column_name]) >= lower_bound
@@ -99,10 +117,7 @@ SEP = "*"*100
 def summarize_data(visits_file_name, config_file_name, results_file_name, verbose=False):
     df_visits = pd.read_excel(
         visits_file_name,
-        sheet_name=0,
         engine='openpyxl',
-        convert_float=True,
-        parse_dates=True,
     )
     print(SEP)
     print('Raw data file looks like the following:')
@@ -110,7 +125,8 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
 
     # reformat df visits
     for col_name in df_visits.columns:
-        df_visits[col_name] = df_visits[col_name].astype('Int64', errors='ignore')
+        if col_name not in [BIRTHDATE_COL, VISITS_DATE_COL]:
+            df_visits[col_name] = df_visits[col_name].apply(str).astype('string')
     df_visits.dropna(how='all', inplace=True)
     df_visits[AGE_COL] = (pd.to_datetime(df_visits[VISITS_DATE_COL]) - pd.to_datetime(df_visits[BIRTHDATE_COL])) / np.timedelta64(1, 'Y')
     df_visits = df_visits.applymap(lambda x: x.strip() if isinstance(x, str) else x)
