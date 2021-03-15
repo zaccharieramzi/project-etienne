@@ -9,6 +9,11 @@ BIRTHDATE_COL = 'DDN'
 VISITS_DATE_COL = 'Début Passage'
 AGE_COL = 'Age'
 NAN_SUMMARY_NAME = '<vide>'
+FILLED_SUMMARY_VALUE = '<rempli>'
+OPEN_VARIABLES_LIST = [
+    'Précision',
+    'Autre',
+]
 
 def read_order_relationship(config_value):
     return config_value.strip().split(' ')
@@ -159,6 +164,21 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         f'Mean: {mean_age:.4f}',
         f'Std: {std_age:.4f}',
     ]
+    for col_name in OPEN_VARIABLES_LIST:
+        col_summary = results_formatted[col_name]
+        nan_indexes = [i for i, v in enumerate(col_summary) if NAN_SUMMARY_NAME in v]
+        assert len(nan_indexes) < 2, f'Make sure no data cell features the forbidden sequence: {NAN_SUMMARY_NAME}'
+        if nan_indexes:
+            nan_index = nan_indexes[0]
+            nan_text = col_summary.pop(nan_index)
+            nan_count = int(nan_text.split('/')[0].split(':')[1].strip())
+        else:
+            nan_count = 0
+        filled_count = n_queried - nan_count
+        results_formatted[col_name] = [
+            f'{NAN_SUMMARY_NAME}: {nan_count} / {n_queried}',
+            f'{FILLED_SUMMARY_VALUE}: {filled_count} / {n_queried}',
+        ] + col_summary
     df_results = pd.DataFrame.from_dict(results_formatted, orient='index')
     df_results = df_results.transpose()
     print(SEP)
