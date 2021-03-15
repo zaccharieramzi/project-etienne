@@ -129,6 +129,9 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         print(SEP)
         print('The data meeting the conditions is the following (might be truncated for readability):')
         print(df_queried)
+    results_age_col = df_queried.pop(AGE_COL)
+    age_pos = list(df_queried.columns).index(BIRTHDATE_COL) + 1
+    df_queried.insert(age_pos, AGE_COL, results_age_col)
     print('Now summarizing this information')
     # format the queried df in order to prepare for summary
     # Before formatting age compute the mean and std
@@ -145,7 +148,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
             f'{format_value(i, col_name)}: {v} / {n_queried}'
             for i, v in get_ordered_value_counts(df_queried_formatted[col_name]).iteritems()
         ]
-        for col_name in df_visits.columns
+        for col_name in df_queried_formatted.columns
     }
     results_formatted[AGE_COL] += [
         f'Mean: {mean_age:.4f}',
