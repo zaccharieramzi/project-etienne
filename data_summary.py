@@ -63,14 +63,19 @@ def format_value(value, col_name):
         return value
 
 def get_ordered_value_counts(series):
-    ovc = series.value_counts(
-        dropna=False
-    ).sort_index(
-        ascending=False
-    ).sort_values(
-        ascending=False,
-        kind='mergesort',
-    )
+    vc = series.value_counts(dropna=False)
+    try:
+        ovc = vc.sort_index(
+            ascending=False
+        ).sort_values(
+            ascending=False,
+            kind='mergesort',
+        )
+    except TypeError:
+        try:
+            ovc = get_ordered_value_counts(pd.to_datetime(series))
+        except TypeError:
+            return vc
     return ovc
 
 SEP = "*"*100
