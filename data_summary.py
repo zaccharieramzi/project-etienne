@@ -6,6 +6,7 @@ import pandas as pd
 BIRTHDATE_COL = 'DDN'
 VISITS_DATE_COL = 'Début Passage'
 AGE_COL = 'Age'
+NAN_SUMMARY_NAME = '<vide>'
 
 def read_order_relationship(config_value):
     return config_value.strip().split(' ')
@@ -59,6 +60,8 @@ def build_query(config_value, column_name, df):
 def format_value(value, col_name):
     if isinstance(value, float):
         return f'{value:.2f}'
+    elif pd.isna(value):
+        return NAN_SUMMARY_NAME
     else:
         return value
 
