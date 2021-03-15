@@ -61,7 +61,10 @@ def format_value(value, col_name):
     if pd.isna(value):
         return NAN_SUMMARY_NAME
     elif isinstance(value, float):
-        return f'{value:.2f}'
+        if int(value) == value:
+            return int(value)
+        else:
+            return f'{value:.2f}'
     else:
         return value
 
@@ -100,7 +103,6 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         df_visits[col_name] = df_visits[col_name].astype('Int64', errors='ignore')
     df_visits.dropna(how='all', inplace=True)
     df_visits[AGE_COL] = (pd.to_datetime(df_visits[VISITS_DATE_COL]) - pd.to_datetime(df_visits[BIRTHDATE_COL])) / np.timedelta64(1, 'Y')
-    df_visits = df_visits.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     print(SEP)
     print('Reformatted data file looks like the following:')
     print(df_visits.head(10))
