@@ -3,6 +3,10 @@ import numpy as np
 import pandas as pd
 
 
+BIRTHDATE_COL = 'DDN'
+VISITS_DATE_COL = 'Début Passage'
+AGE_COL = 'Age'
+
 def read_order_relationship(config_value):
     return config_value.strip().split(' ')
 
@@ -11,18 +15,27 @@ def parse_config(config_value, column_name):
         return [config_value]
     config_value = config_value.split(';')
     config_value = [cv.strip() for cv in config_value]
-    if column_name != 'Age':
+    if column_name not in [AGE_COL, VISITS_DATE_COL]:
         try:
             config_value = [int(cv) for cv in config_value]
         except ValueError:
             pass
+    elif column_name == VISITS_DATE_COL:
+        assert len(config_value) < 3, 'Date filtering should not have more than 2 elements'
+        config_value = [pd.to_datetime(cv) for cv in config_value]
     else:
         config_value = [read_order_relationship(cv) for cv in config_value]
     return config_value
 
 def build_query(config_value, column_name, df):
-    if column_name != 'Age':
+    if column_name not in [AGE_COL, VISITS_DATE_COL]:
         new_query = df[column_name].isin(config_value)
+    elif column_name == VISITS_DATE_COL:
+        lower_bound = config_value[0]
+        new_query = pd.to_datetime(df[column_name]) >= lower_bound
+        if len(config_value) == 2:
+            upper_bound = config_value[1]
+            new_query = new_query & (pd.to_datetime(df[column_name]) <= upper_bound)
     else:
         new_query = None
         for (op, num_value) in config_value:
@@ -67,7 +80,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     for col_name in df_visits.columns:
         df_visits[col_name] = df_visits[col_name].astype('Int64', errors='ignore')
     df_visits.dropna(how='all', inplace=True)
-    df_visits['Age'] = (pd.to_datetime(df_visits['Début Passage']) - pd.to_datetime(df_visits['DDN'])) / np.timedelta64(1, 'Y')
+    df_visits[AGE_COL] = (pd.to_datetime(df_visits[VISITS_DATE_COL]) - pd.to_datetime(df_visits[BIRTHDATE_COL])) / np.timedelta64(1, 'Y')
     print(SEP)
     print('Reformatted data file looks like the following:')
     print(df_visits.head(10))
@@ -113,7 +126,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print(SEP)
     print('The summaries are the following (might be truncated for readability):')
     print(df_results)
-    writer = pd.ExcelWriter(results_file_name, engine = 'xlsxwriter')
+    writer = pd.ExcelWriter(results_file_name, engine='xlsxwriter')
     df_results.to_excel(writer, index=False, sheet_name='Results summary')
     df_queried.to_excel(writer, index=False, sheet_name='Results detail')
     writer.close()
