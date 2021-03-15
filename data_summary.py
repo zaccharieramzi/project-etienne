@@ -58,10 +58,10 @@ def build_query(config_value, column_name, df):
     return new_query
 
 def format_value(value, col_name):
-    if isinstance(value, float):
-        return f'{value:.2f}'
-    elif pd.isna(value):
+    if pd.isna(value):
         return NAN_SUMMARY_NAME
+    elif isinstance(value, float):
+        return f'{value:.2f}'
     else:
         return value
 
