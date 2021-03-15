@@ -12,8 +12,8 @@ def read_order_relationship(config_value):
     return config_value.strip().split(' ')
 
 def parse_config(config_value, column_name):
-    if isinstance(config_value, np.int64):
-        return [config_value]
+    if isinstance(config_value, (np.int64, float, int, np.float64)):
+        return [int(config_value)]
     config_value = config_value.split(';')
     config_value = [cv.strip() for cv in config_value]
     if column_name not in [AGE_COL, VISITS_DATE_COL]:
