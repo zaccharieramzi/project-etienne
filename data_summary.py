@@ -13,6 +13,9 @@ NAN_SUMMARY_NAME = '<vide>'
 def read_order_relationship(config_value):
     return config_value.strip().split(' ')
 
+def date_parsing(series):
+    return pd.to_datetime(series, dayfirst=True)
+
 def parse_config(config_value, column_name):
     if isinstance(config_value, (np.int64, float, int, np.float64)):
         return [str(config_value)]
@@ -53,10 +56,10 @@ def build_query(config_value, column_name, df):
                 new_query = new_query | cv_query
     elif column_name == VISITS_DATE_COL:
         lower_bound = config_value[0]
-        new_query = pd.to_datetime(df[column_name]) >= lower_bound
+        new_query = date_parsing(df[column_name]) >= lower_bound
         if len(config_value) == 2:
             upper_bound = config_value[1]
-            new_query = new_query & (pd.to_datetime(df[column_name]) <= upper_bound)
+            new_query = new_query & (date_parsing(df[column_name]) <= upper_bound)
     else:
         new_query = None
         for (op, num_value) in config_value:
@@ -77,24 +80,24 @@ def build_query(config_value, column_name, df):
                 new_query = new_query & order_query
     return new_query
 
+def handle_float_value(float_value):
+    if int(float_value) == float_value:
+        return int(float_value)
+    else:
+        return f'{float_value:.2f}'
+
 def format_value(value, col_name):
     if pd.isna(value) or value in ['nan', '<NA>']:
         return NAN_SUMMARY_NAME
     elif isinstance(value, float):
-        if int(value) == value:
-            return int(value)
-        else:
-            return f'{value:.2f}'
+        handle_float_value(value)
     else:
         try:
-            return int(value)
+            value = float(value)
         except ValueError:
-            try:
-                value = float(value)
-            except ValueError:
-                return value
-            else:
-                return f'{value:.2f}'
+            return value
+        else:
+            return handle_float_value(value)
 
 def get_ordered_value_counts(series, col_name):
     vc = series.apply(str).value_counts(dropna=False)
@@ -107,7 +110,7 @@ def get_ordered_value_counts(series, col_name):
         )
     except TypeError:
         try:
-            ovc = get_ordered_value_counts(pd.to_datetime(series), col_name)
+            ovc = get_ordered_value_counts(date_parsing(series), col_name)
         except (TypeError, ParserError):
             return vc
     return ovc
@@ -124,15 +127,16 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print(df_visits.head(10))
 
     # reformat df visits
-    for col_name in df_visits.columns:
-        if col_name not in [BIRTHDATE_COL, VISITS_DATE_COL]:
-            df_visits[col_name] = df_visits[col_name].apply(str).astype('string')
     df_visits.dropna(how='all', inplace=True)
-    df_visits[AGE_COL] = (pd.to_datetime(df_visits[VISITS_DATE_COL]) - pd.to_datetime(df_visits[BIRTHDATE_COL])) / np.timedelta64(1, 'Y')
+    df_visits[AGE_COL] = (date_parsing(df_visits[VISITS_DATE_COL]) - date_parsing(df_visits[BIRTHDATE_COL])) / np.timedelta64(1, 'Y')
     df_visits = df_visits.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df_visits_formatted = df_visits.copy()
+    for col_name in df_visits.columns:
+        if col_name not in [BIRTHDATE_COL, VISITS_DATE_COL, AGE_COL]:
+            df_visits_formatted[col_name] = df_visits_formatted[col_name].apply(str).astype('string')
     print(SEP)
     print('Reformatted data file looks like the following:')
-    print(df_visits.head(10))
+    print(df_visits_formatted.head(10))
     df_config = pd.read_excel(config_file_name, engine='openpyxl')
     assert len(df_config) == 1, "Config has not exactly one line"
     # config parsing
@@ -149,12 +153,12 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     for k, v in dict_config.items():
         # here we would have a function that builds a query from the column name
         # and the values passed
-        new_query = build_query(v, k, df_visits)
+        new_query = build_query(v, k, df_visits_formatted)
         if query is None:
             query = new_query
         else:
             query = (query & new_query)
-    df_queried = df_visits[query]
+    df_queried = df_visits_formatted[query]
     if verbose:
         print(SEP)
         print('The data meeting the conditions is the following (might be truncated for readability):')
@@ -191,7 +195,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print(df_results)
     writer = pd.ExcelWriter(results_file_name, engine='xlsxwriter')
     df_results.to_excel(writer, index=False, sheet_name='Results summary')
-    df_queried.to_excel(writer, index=False, sheet_name='Results detail')
+    df_visits[query].to_excel(writer, index=False, sheet_name='Results detail')
     writer.close()
     return df_results
 
