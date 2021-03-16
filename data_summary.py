@@ -8,6 +8,8 @@ import pandas as pd
 BIRTHDATE_COL = 'DDN'
 VISITS_DATE_COL = 'Début Passage'
 AGE_COL = 'Age'
+OR_SPLIT = ';'
+AND_SPLIT = '+'
 NAN_SUMMARY_NAME = '<vide>'
 
 def read_order_relationship(config_value):
@@ -17,9 +19,13 @@ def date_parsing(series):
     return pd.to_datetime(series, dayfirst=True)
 
 def parse_config(config_value, column_name):
+    if config_value.contains(AND_SPLIT):
+        cfg_type = 'and'
+    else:
+        cfg_type = 'or'
     if isinstance(config_value, (np.int64, float, int, np.float64)):
         return [str(config_value)]
-    config_value = config_value.split(';')
+    config_value = config_value.split(AND_SPLIT if cfg_type == 'and' else OR_SPLIT)
     config_value = [cv.strip() for cv in config_value]
     if column_name not in [AGE_COL, VISITS_DATE_COL]:
         try:
@@ -31,7 +37,7 @@ def parse_config(config_value, column_name):
         config_value = [pd.to_datetime(cv) for cv in config_value]
     else:
         config_value = [read_order_relationship(cv) for cv in config_value]
-    return config_value
+    return config_value, cfg_type
 
 def normalize_str_series(series):
     normalized_series = series.str.normalize(
@@ -44,7 +50,7 @@ def normalize_str_series(series):
     ).str.strip().str.lower()
     return normalized_series
 
-def build_query(config_value, column_name, df):
+def build_query(config_value, column_name, df, cfg_type='or'):
     if column_name not in [AGE_COL, VISITS_DATE_COL]:
         normalized_column = normalize_str_series(df[column_name])
         new_query = None
@@ -53,7 +59,10 @@ def build_query(config_value, column_name, df):
             if new_query is None:
                 new_query = cv_query
             else:
-                new_query = new_query | cv_query
+                if cfg_type == 'or':
+                    new_query = new_query | cv_query
+                else:
+                    new_query = new_query & cv_query
     elif column_name == VISITS_DATE_COL:
         lower_bound = config_value[0]
         new_query = date_parsing(df[column_name]) >= lower_bound
@@ -150,10 +159,10 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print(dict_config)
     # https://stackoverflow.com/a/17071908/4332585
     query = None
-    for k, v in dict_config.items():
+    for k, (config_value, cfg_type) in dict_config.items():
         # here we would have a function that builds a query from the column name
         # and the values passed
-        new_query = build_query(v, k, df_visits_formatted)
+        new_query = build_query(config_value, k, df_visits_formatted, cfg_type)
         if query is None:
             query = new_query
         else:
