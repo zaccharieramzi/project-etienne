@@ -14,3 +14,7 @@ def test_all_configs(visits_filename, configs_path):
     for config_file in config_files:
         results_file = configs_path / f'results_{config_file.name}'
         summarize_data(visits_filename, config_file, results_file)
+
+
+if __name__ == '__main__':
+    test_all_configs()
