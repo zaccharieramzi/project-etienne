@@ -143,3 +143,4 @@ cython_debug/
 *.xlsx
 *.xlsx#
 *.csv
+!config_examples/*
