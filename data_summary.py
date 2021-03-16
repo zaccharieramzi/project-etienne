@@ -19,12 +19,14 @@ def date_parsing(series):
     return pd.to_datetime(series, dayfirst=True)
 
 def parse_config(config_value, column_name):
-    if AND_SPLIT in config_value:
+    if AND_SPLIT in str(config_value):
         cfg_type = 'and'
     else:
         cfg_type = 'or'
     if isinstance(config_value, (np.int64, float, int, np.float64)):
-        return [str(config_value)]
+        if int(config_value) == config_value:
+            config_value = int(config_value)
+        return [str(config_value)], cfg_type
     config_value = config_value.split(AND_SPLIT if cfg_type == 'and' else OR_SPLIT)
     config_value = [cv.strip() for cv in config_value]
     if column_name not in [AGE_COL, VISITS_DATE_COL]:
