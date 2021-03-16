@@ -89,6 +89,18 @@ def build_query(config_value, column_name, df, cfg_type='or'):
                 new_query = new_query & order_query
     return new_query
 
+def build_dict_query(dict_config, df):
+    query = None
+    for k, (config_value, cfg_type) in dict_config.items():
+        # here we would have a function that builds a query from the column name
+        # and the values passed
+        new_query = build_query(config_value, k, df, cfg_type)
+        if query is None:
+            query = new_query
+        else:
+            query = (query & new_query)
+    return query
+
 def handle_float_value(float_value):
     if int(float_value) == float_value:
         return int(float_value)
@@ -147,26 +159,30 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print('Reformatted data file looks like the following:')
     print(df_visits_formatted.head(10))
     df_config = pd.read_excel(config_file_name, engine='openpyxl')
-    assert len(df_config) == 1, "Config has not exactly one line"
+    assert len(df_config) in [1, 2], "Config has not exactly 1 or 2 line(s)"
     # config parsing
     dict_config = {
         k: parse_config(v, k)
         for k, v in df_config.loc[0].iteritems()
         if pd.notna(v)
     }
+    if len(df_config) == 2:
+        dict_config_neg = {
+            k: parse_config(v, k)
+            for k, v in df_config.loc[0].iteritems()
+            if pd.notna(v)
+        }
     print(SEP)
     print('Config has been read as the following:')
     print(dict_config)
+    if len(df_config) == 2:
+        print('Negative config has been read as the following:')
+        print(dict_config_neg)
     # https://stackoverflow.com/a/17071908/4332585
-    query = None
-    for k, (config_value, cfg_type) in dict_config.items():
-        # here we would have a function that builds a query from the column name
-        # and the values passed
-        new_query = build_query(config_value, k, df_visits_formatted, cfg_type)
-        if query is None:
-            query = new_query
-        else:
-            query = (query & new_query)
+    query = build_dict_query(dict_config, df_visits_formatted)
+    if len(df_config) == 2:
+        query_neg = build_dict_query(dict_config_neg, df_visits_formatted)
+        query = query & (not query_neg)
     df_queried = df_visits_formatted[query]
     if verbose:
         print(SEP)
