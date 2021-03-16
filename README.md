@@ -33,7 +33,7 @@ Ceci est une doc pour l'usage du bot sous Windows.
 - execute bot: `python data_summary.py --data-file month_relecture.xlsx --config-file config.xlsx --results-file results.xlsx`
 - To access more easily past commands in the terminal, you use the keyboard arrows (upwards)
 - be careful to close excel files after saving config or modifications in data
-- be careful when indicating files path, to use “\” before spaces in file names. Or you can just rely on auto-completion by using Tab (Tabulation).
+- be careful when indicating files path, to use escape spaces in file names. Or you can just rely on auto-completion by using Tab (Tabulation).
 
 # Config:
 
