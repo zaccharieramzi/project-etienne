@@ -169,7 +169,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     if len(df_config) == 2:
         dict_config_neg = {
             k: parse_config(v, k)
-            for k, v in df_config.loc[0].iteritems()
+            for k, v in df_config.loc[1].iteritems()
             if pd.notna(v)
         }
     print(SEP)
@@ -182,7 +182,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     query = build_dict_query(dict_config, df_visits_formatted)
     if len(df_config) == 2:
         query_neg = build_dict_query(dict_config_neg, df_visits_formatted)
-        query = query & (not query_neg)
+        query = query & (~ query_neg)
     df_queried = df_visits_formatted[query]
     if verbose:
         print(SEP)
