@@ -16,11 +16,17 @@ Ceci est une doc pour l'usage du bot sous Windows.
 - Attention lors de l'ecriture des chemins de fichiers a bien echapper les espaces a l'aide guillemets (voir [ici](https://www.howtogeek.com/694949/how-to-escape-spaces-in-file-paths-on-the-windows-command-line/) pour plus de precisions). Vous pouvez sinon utiliser Tab (Tabulation) pour avoir une auto-completion des fichiers. Le plus simple est certainement des nommer les fichiers sans espace.
 
 ## Config
-- une ligne exactement dans le fichier (apres l'en-tete)
-- dans chaque cellule sous l'en-tete vous pouvez mettre les valeurs que vous voulez selectionner, separees par des ";".
+- une ou deux lignes exactement dans le fichier (apres l'en-tete)
+- dans chaque cellule sous l'en-tete vous pouvez mettre les valeurs que vous voulez selectionner, separees par des ";". Pour selectionner des cellules ou many elements doivent etre presents, il faut utiliser "+".
 - vous pouvez ajouter une colonne "Age" dans laquelle vous pouvez specifier les relations d'ordre a l'age, en utilisant des operateurs binaires. Par exemple: “>= 13” or “> 13; < 16”. Attention a l'espace entre l'operateur et la valeur numerique.
 - pour le filtrage selon la date, vous pouvez utiliser 1 ou 2 dates separees par ";". Chaque date doit etre ecrite dans un format non-ambigu en suivant le formattage anglo-saxon. Par exemple: "13 Jan 2019" or "23 Feb 2019; 31 Mar 2019". Si 1 seule date est presente dans la config, les visites selectionnees seront celles plus recentes que cette date. Les filtres de date sont inclusifs.
+- une deuxieme ligne de configuration peut etre ajouter pour une requete negative. Les lignes correspondant a la 2eme ligne seront exclues du resume.
 
+
+Attention: la correspondance entre la config et le contenu des cellules n'est pas exacte.
+Les accents et la casse sont par exemple ignores.
+Une cellule contenant la valeur de configuration sera consideree comme repondant a la configuration.
+Exemple: une config "Keratine" selectionnera les cellules "KERATINE", "Keratineambienne", etc...
 
 
 # How to use python “bot”?
@@ -33,11 +39,18 @@ Ceci est une doc pour l'usage du bot sous Windows.
 - execute bot: `python data_summary.py --data-file month_relecture.xlsx --config-file config.xlsx --results-file results.xlsx`
 - To access more easily past commands in the terminal, you use the keyboard arrows (upwards)
 - be careful to close excel files after saving config or modifications in data
-- be careful when indicating files path, to use “\” before spaces in file names. Or you can just rely on auto-completion by using Tab (Tabulation).
+- be careful when indicating files path, to use escape spaces in file names. Or you can just rely on auto-completion by using Tab (Tabulation).
 
 # Config:
 
-- one line exactly
-- In each cell under the header, you should have all the values you want to filter in separated by “;”
+- one or two lines exactly (after the header)
+- In each cell under the header, you should have all the values you want to filter in separated by “;”. To select cells where many elements must be present, you need to use "+".
 - you can add one column “Age” in which you can specify relationships to age, using binary relationship operators. Example: “>= 13” or “> 13; < 16”. Watch the space between op and numerical value
 - For the date filtering, you can use 1 or 2 dates separated by ";". Each date should be written in a non-ambiguous format, following anglo-saxon formatting. Example: "13 Jan 2019" or "23 Feb 2019; 31 Mar 2019". If only 1 date is present the visits selected will be the ones more recent than this date. Dates filters are inclusive.
+- a second line of config can be added for a negative request. Lines corresponding to the 2nd config line will be excluded from the summary.
+
+
+Warning: The match between config and cell content is not exact.
+Accents and case are for example ignored.
+A cell containing the config value will be considered as matching the configuration.
+Example: a config "Keratine" will be matched by cells "KERATINE", "Keratineambienne", etc...
