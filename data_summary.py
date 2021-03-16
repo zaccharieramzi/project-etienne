@@ -19,7 +19,7 @@ def date_parsing(series):
     return pd.to_datetime(series, dayfirst=True)
 
 def parse_config(config_value, column_name):
-    if config_value.contains(AND_SPLIT):
+    if AND_SPLIT in config_value:
         cfg_type = 'and'
     else:
         cfg_type = 'or'
