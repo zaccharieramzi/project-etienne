@@ -13,14 +13,14 @@ Ceci est une doc pour l'usage du bot sous Windows.
 - executer le bot: `python data_summary.py --data-file month_relecture.xlsx --config-file config.xlsx --results-file results.xlsx`
 - Pour acceder plus facilement aux commandes passees, vous pouvez utiliser les fleches du clavier (vers le haut)
 - Attention a bien fermer les fichiers excel apres avoir sauvegarde les modifications sur la configuration ou les donnees
-- Attention lors de l'ecriture des chemins de fichiers a bien echapper les espaces a l'aide guillemets (voir [ici](https://www.howtogeek.com/694949/how-to-escape-spaces-in-file-paths-on-the-windows-command-line/) pour plus de precisions). Vous pouvez sinon utiliser Tab (Tabulation) pour avoir une auto-completion des fichiers. Le plus simple est certainement des nommer les fichiers sans espace.
+- Attention lors de l'ecriture des chemins de fichiers a bien echapper les espaces a l'aide de guillemets (voir [ici](https://www.howtogeek.com/694949/how-to-escape-spaces-in-file-paths-on-the-windows-command-line/) pour plus de precisions). Vous pouvez sinon utiliser Tab (Tabulation) pour avoir une auto-completion des fichiers. Le plus simple est certainement des nommer les fichiers sans espace.
 
 ## Config
 - une ou deux lignes exactement dans le fichier (apres l'en-tete)
-- dans chaque cellule sous l'en-tete vous pouvez mettre les valeurs que vous voulez selectionner, separees par des ";". Pour selectionner des cellules ou many elements doivent etre presents, il faut utiliser "+".
+- dans chaque cellule sous l'en-tete vous pouvez mettre les valeurs que vous voulez selectionner, separees par des ";". Pour selectionner des cellules ou plusieurs elements doivent etre presents, il faut utiliser "+".
 - vous pouvez ajouter une colonne "Age" dans laquelle vous pouvez specifier les relations d'ordre a l'age, en utilisant des operateurs binaires. Par exemple: “>= 13” or “> 13; < 16”. Attention a l'espace entre l'operateur et la valeur numerique.
 - pour le filtrage selon la date, vous pouvez utiliser 1 ou 2 dates separees par ";". Chaque date doit etre ecrite dans un format non-ambigu en suivant le formattage anglo-saxon. Par exemple: "13 Jan 2019" or "23 Feb 2019; 31 Mar 2019". Si 1 seule date est presente dans la config, les visites selectionnees seront celles plus recentes que cette date. Les filtres de date sont inclusifs.
-- une deuxieme ligne de configuration peut etre ajouter pour une requete negative. Les lignes correspondant a la 2eme ligne seront exclues du resume.
+- une deuxieme ligne de configuration peut etre ajoutee pour une requete negative. Les lignes correspondant a la 2eme ligne seront exclues du resume.
 
 
 Attention: la correspondance entre la config et le contenu des cellules n'est pas exacte.
