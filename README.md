@@ -11,7 +11,7 @@ Ceci est une doc pour l'usage du bot sous Windows.
   - en particulier creer les 2 documents data et config
   - lancer l’invite de commandes depuis ce dossier en tapant “cmd” dans la barre d’indication de chemin
 - executer le bot: `python data_summary.py --data-file month_relecture.xlsx --config-file config.xlsx --results-file results.xlsx`
-- Pour acceder plus facilement aux commandes passes, vous pouvez utiliser les fleches du clavier (vers le haut)
+- Pour acceder plus facilement aux commandes passees, vous pouvez utiliser les fleches du clavier (vers le haut)
 - Attention a bien fermer les fichiers excel apres avoir sauvegarde les modifications sur la configuration ou les donnees
 - Attention lors de l'ecriture des chemins de fichiers a bien echapper les espaces a l'aide guillemets (voir [ici](https://www.howtogeek.com/694949/how-to-escape-spaces-in-file-paths-on-the-windows-command-line/) pour plus de precisions). Vous pouvez sinon utiliser Tab (Tabulation) pour avoir une auto-completion des fichiers. Le plus simple est certainement des nommer les fichiers sans espace.
 
