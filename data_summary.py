@@ -217,7 +217,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     query_neg = None
     for dict_config in negative_configs:
         new_query = build_dict_query(dict_config, df_visits_formatted)
-        if query is None:
+        if query_neg is None:
             query_neg = new_query
         else:
             query_neg = query_neg | new_query
