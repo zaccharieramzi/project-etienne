@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 
 
+REQUEST_SPECIFIER_COL = 'Request'
+NEGATIVE_REQUEST = 0
+POSITIVE_REQUEST = 1
 BIRTHDATE_COL = 'DDN'
 VISITS_DATE_COL = 'Début Passage'
 AGE_COL = 'Age'
@@ -161,29 +164,64 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print('Reformatted data file looks like the following:')
     print(df_visits_formatted.head(10))
     df_config = pd.read_excel(config_file_name, engine='openpyxl')
-    assert len(df_config) in [1, 2], "Config has not exactly 1 or 2 line(s)"
-    # config parsing
-    dict_config = {
-        k: parse_config(v, k)
-        for k, v in df_config.loc[0].iteritems()
-        if pd.notna(v)
-    }
-    if len(df_config) == 2:
-        dict_config_neg = {
+    if not REQUEST_SPECIFIER_COL in df_config.columns:
+        assert len(df_config) in [1, 2], "Config has not exactly 1 or 2 line(s)"
+        # config parsing without request specifier
+        dict_config = {
             k: parse_config(v, k)
-            for k, v in df_config.loc[1].iteritems()
+            for k, v in df_config.loc[0].iteritems()
             if pd.notna(v)
         }
-    print(SEP)
-    print('Config has been read as the following:')
-    print(dict_config)
-    if len(df_config) == 2:
-        print('Negative config has been read as the following:')
-        print(dict_config_neg)
+        positive_configs = [dict_config]
+        if len(df_config) == 2:
+            dict_config_neg = {
+                k: parse_config(v, k)
+                for k, v in df_config.loc[1].iteritems()
+                if pd.notna(v)
+            }
+            negative_configs = [dict_config_neg]
+        else:
+            negative_configs = []
+        print(SEP)
+        print('Config has been read as the following:')
+        print(dict_config)
+        if len(df_config) == 2:
+            print('Negative config has been read as the following:')
+            print(dict_config_neg)
+    else:
+        df_config_positive = df_config[df_config[REQUEST_SPECIFIER_COL] == POSITIVE_REQUEST]
+        df_config_negative = df_config[df_config[REQUEST_SPECIFIER_COL] == NEGATIVE_REQUEST]
+        positive_configs = [
+            {
+                k: parse_config(v, k)
+                for k, v in row.iteritems()
+                if pd.notna(v)
+            } for index, row in df_config_positive.iterrows()
+        ]
+        negative_configs = [
+            {
+                k: parse_config(v, k)
+                for k, v in row.iteritems()
+                if pd.notna(v)
+            } for index, row in df_config_negative.iterrows()
+        ]
+
     # https://stackoverflow.com/a/17071908/4332585
-    query = build_dict_query(dict_config, df_visits_formatted)
-    if len(df_config) == 2:
-        query_neg = build_dict_query(dict_config_neg, df_visits_formatted)
+    query = None
+    for dict_config in positive_configs:
+        new_query = build_dict_query(dict_config, df_visits_formatted)
+        if query is None:
+            query = new_query
+        else:
+            query = query | new_query
+    query_neg = None
+    for dict_config in negative_configs:
+        new_query = build_dict_query(dict_config, df_visits_formatted)
+        if query is None:
+            query_neg = new_query
+        else:
+            query_neg = query_neg | new_query
+    if query_neg is not None:
         query = query & (~ query_neg)
     df_queried = df_visits_formatted[query]
     if verbose:
