@@ -228,9 +228,9 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
 
 
 @click.command()
-@click.option('visits_file_name', '--data-file', type=click.Path(exists=True, dir_okay=False))
-@click.option('config_file_name', '--config-file', type=click.Path(exists=True, dir_okay=False), default='config.xlsx')
-@click.option('results_file_name', '--results-file', type=click.Path(dir_okay=False), default='results.xlsx')
+@click.option('visits_file_name', '--data-file', '-d', type=click.Path(exists=True, dir_okay=False))
+@click.option('config_file_name', '--config-file', '-c', type=click.Path(exists=True, dir_okay=False), default='config.xlsx')
+@click.option('results_file_name', '--results-file', '-r', type=click.Path(dir_okay=False), default='results.xlsx')
 @click.option('verbose', '--v', is_flag=True)
 def summarize_data_click(visits_file_name, config_file_name, results_file_name, verbose):
     summarize_data(visits_file_name, config_file_name, results_file_name, verbose)
