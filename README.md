@@ -41,7 +41,7 @@ Exemple: une config "Keratine" selectionnera les cellules "KERATINE", "Keratinea
 - be careful to close excel files after saving config or modifications in data
 - be careful when indicating files path, to use escape spaces in file names. Or you can just rely on auto-completion by using Tab (Tabulation).
 
-# Config:
+## Config:
 
 - one or two lines exactly (after the header)
 - In each cell under the header, you should have all the values you want to filter in separated by “;”. To select cells where many elements must be present, you need to use "+".
