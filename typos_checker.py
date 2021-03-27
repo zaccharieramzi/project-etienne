@@ -43,7 +43,7 @@ from tkinter import filedialog
 import tkinter.font as tkFont
 
 
-class Application(tk.Frame):
+class FirstWindow(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -75,18 +75,26 @@ class Application(tk.Frame):
 
     def create_column_widget(self):
         columns = self.file.get_columns()
+        self.selected_column = columns[0]
         selected_column_var = tk.StringVar(self)
-        selected_column_var.set(str(columns[0]))
+        selected_column_var.set(str(self.selected_column))
         def change_selected_column(*args):
-            print(selected_column_var.get())
+            self.selected_column = [c for c in columns if str(c) == selected_column_var.get()]
         selected_column_var.trace("w", change_selected_column)
         self.column_menu = ttk.Combobox(self, textvariable=selected_column_var)
         self.column_menu['values'] = [str(c) for c in columns]
         self.column_menu.pack(side=tk.TOP)
         self.column_validation = tk.Button(self)
         self.column_validation['text'] = 'Validate column'
-        self.column_validation['command'] = self.say_hi
+        self.column_validation['command'] = self.validate_column
         self.column_validation.pack(side=tk.TOP)
+
+    def validate_column(self):
+        self.master.destroy()
+        root = tk.Tk()
+        root.title("Typos checker")
+        app = SecondWindow(master=root, column=self.selected_column)
+        app.mainloop()
 
     def say_hi(self):
         print("hi there, everyone!")
@@ -103,10 +111,30 @@ class Application(tk.Frame):
             self.create_column_widget()
 
 
+class SecondWindow(tk.Frame):
+    def __init__(self, column, master=None):
+        super().__init__(master)
+        self.master = master
+        self.column = column
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.title_label = tk.Label(
+            self,
+            text=self.master.wm_title(),
+            font=tkFont.Font(weight='bold'),
+        )
+        self.title_label.pack(side="top")
+        self.quit = tk.Button(self, text="QUIT", fg="red",
+                              command=self.master.destroy)
+        self.quit.pack(side=tk.BOTTOM)
+
+
 def main():
     root = tk.Tk()
     root.title("Typos checker")
-    app = Application(master=root)
+    app = FirstWindow(master=root)
     app.mainloop()
 
 if __name__ == '__main__':
