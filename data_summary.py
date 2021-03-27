@@ -183,7 +183,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
         else:
             negative_configs = []
         print(SEP)
-        print('Config has been read as the following:')
+        print('Positive config has been read as the following:')
         print(dict_config)
         if len(df_config) == 2:
             print('Negative config has been read as the following:')
@@ -195,17 +195,21 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
             {
                 k: parse_config(v, k)
                 for k, v in row.iteritems()
-                if pd.notna(v)
+                if pd.notna(v) and k != REQUEST_SPECIFIER_COL
             } for index, row in df_config_positive.iterrows()
         ]
         negative_configs = [
             {
                 k: parse_config(v, k)
                 for k, v in row.iteritems()
-                if pd.notna(v)
+                if pd.notna(v) and k != REQUEST_SPECIFIER_COL
             } for index, row in df_config_negative.iterrows()
         ]
-
+        print(SEP)
+        print('Positive configs have been read as the following:')
+        print(*positive_configs, sep='\n')
+        print('Negative configs have been read as the following:')
+        print(*negative_configs, sep='\n')
     # https://stackoverflow.com/a/17071908/4332585
     query = None
     for dict_config in positive_configs:
