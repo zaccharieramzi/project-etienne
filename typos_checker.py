@@ -28,6 +28,9 @@ class ExcelColumn:
     def get_name(self):
         return self.name
 
+    def get_reference_words(self):
+        return self.values
+
 class ReferenceWord:
     def __init__(self, word):
         self.word = word
@@ -71,15 +74,22 @@ class FirstWindow(tk.Frame):
         self.quit = tk.Button(self, text="QUIT", fg="red",
                               command=self.master.destroy)
         self.quit.pack(side=tk.BOTTOM)
+        self.column_menu = None
+
+    def column_widget_teardown(self):
+        if self.column_menu is not None:
+            self.column_menu.destroy()
+            self.column_validation.destroy()
 
 
     def create_column_widget(self):
+        self.column_widget_teardown()
         columns = self.file.get_columns()
         self.selected_column = columns[0]
         selected_column_var = tk.StringVar(self)
         selected_column_var.set(str(self.selected_column))
         def change_selected_column(*args):
-            self.selected_column = [c for c in columns if str(c) == selected_column_var.get()]
+            self.selected_column = [c for c in columns if str(c) == selected_column_var.get()][0]
         selected_column_var.trace("w", change_selected_column)
         self.column_menu = ttk.Combobox(self, textvariable=selected_column_var)
         self.column_menu['values'] = [str(c) for c in columns]
@@ -126,9 +136,33 @@ class SecondWindow(tk.Frame):
             font=tkFont.Font(weight='bold'),
         )
         self.title_label.pack(side="top")
+        self.reference_words = WordFrame(master=self, words=self.column.get_reference_words())
+        self.closest_match = WordFrame(master=self, words=self.column.get_reference_words())
+        self.typos = WordFrame(master=self, words=[])
         self.quit = tk.Button(self, text="QUIT", fg="red",
                               command=self.master.destroy)
         self.quit.pack(side=tk.BOTTOM)
+
+class WordFrame(tk.Frame):
+    def __init__(self, words, master=None):
+        super().__init__(master)
+        self.master = master
+        self.words = words
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.title_label = tk.Label(
+            self,
+            text="Reference words",
+            font=tkFont.Font(weight='bold'),
+        )
+        self.title_label.pack(side="top")
+        self.word_buttons = []
+        for word in self.words:
+            word_button = tk.Button(self, text=word, command=lambda: print(word))
+            word_button.pack(side=tk.TOP)
+            self.word_buttons.append(word_button)
 
 
 def main():
