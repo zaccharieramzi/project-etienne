@@ -14,7 +14,16 @@ def test_all_configs(visits_filename, configs_path):
     for config_file in config_files:
         print('Config file is', config_file)
         results_file = configs_path / f'results_{config_file.name}'
-        summarize_data(visits_filename, config_file, results_file)
+        try:
+            summarize_data(visits_filename, config_file, results_file)
+        except ValueError:
+            if 'unknown' in config_file.name:
+                print('Succesfully raised error for misformed config file')
+            else:
+                raise
+        else:
+            if 'unknown' in config_file.name:
+                raise ValueError('Unknown didnt break the code')
 
 
 if __name__ == '__main__':

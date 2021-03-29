@@ -141,6 +141,27 @@ def get_ordered_value_counts(series, col_name):
             return vc
     return ovc
 
+def check_config_sanity(df_config, df_visits):
+    config_headers = {
+        k
+        for index, row in df_config.iterrows()
+        for k, v in row.iteritems()
+        if pd.notna(v)
+    }
+    data_columns = list(df_visits.columns)
+    data_columns += [AGE_COL, REQUEST_SPECIFIER_COL]
+    unknown_config_headers = []
+    for config_header in config_headers:
+        if config_header not in data_columns:
+            unknown_config_headers.append(config_header)
+    if unknown_config_headers:
+        raise ValueError(
+            'You have unknown active configuration headers.'
+            'Make sure the spelling of the headers in the config file'
+            'matches that of the data file. The list of the unknown headers'
+            f' {unknown_config_headers}'
+        )
+
 SEP = "*"*100
 
 def summarize_data(visits_file_name, config_file_name, results_file_name, verbose=False):
@@ -164,6 +185,7 @@ def summarize_data(visits_file_name, config_file_name, results_file_name, verbos
     print('Reformatted data file looks like the following:')
     print(df_visits_formatted.head(10))
     df_config = pd.read_excel(config_file_name, engine='openpyxl')
+    check_config_sanity(df_config, df_visits)
     if not REQUEST_SPECIFIER_COL in df_config.columns:
         assert len(df_config) in [1, 2], "Config has not exactly 1 or 2 line(s)"
         # config parsing without request specifier
