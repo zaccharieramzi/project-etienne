@@ -143,16 +143,24 @@ def get_ordered_value_counts(series, col_name):
 
 def check_config_sanity(df_config, df_visits):
     config_headers = {
-        k for k, v in row.iteritems()
+        k
         for index, row in df_config.iterrows()
+        for k, v in row.iteritems()
         if pd.notna(v)
     }
-    data_columns = df_visits.columns
+    data_columns = list(df_visits.columns)
     data_columns += [AGE_COL, REQUEST_SPECIFIER_COL]
+    unknown_config_headers = []
     for config_header in config_headers:
         if config_header not in data_columns:
-            print(SEP)
-            print(f'Unknown configuration header: {config_header}')
+            unknown_config_headers.append(config_header)
+    if unknown_config_headers:
+        raise ValueError(
+            'You have unknown active configuration headers.'
+            'Make sure the spelling of the headers in the config file'
+            'matches that of the data file. The list of the unknown headers'
+            f' {unknown_config_headers}'
+        )
 
 SEP = "*"*100
 
