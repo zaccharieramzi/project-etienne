@@ -4,7 +4,7 @@
 
 Ceci est une doc pour l'usage du bot sous Windows.
 
-- installer Python: https://www.python.org/downloads/release/python-379/, en choisissnat le fichier x86-64 executable
+- installer Python: https://www.python.org/downloads/release/python-379/, en choisissant le fichier x86-64 executable
 - ouvrir le terminal (invite de commandes)
 - installer les bibliotheques python necessaires: `pip install pandas openpyxl click xlsxwriter`
 - Dans un dossier unique mettre tous les documents:
@@ -15,6 +15,10 @@ Ceci est une doc pour l'usage du bot sous Windows.
 - Attention a bien fermer les fichiers excel apres avoir sauvegarde les modifications sur la configuration ou les donnees
 - Attention lors de l'ecriture des chemins de fichiers a bien echapper les espaces a l'aide de guillemets (voir [ici](https://www.howtogeek.com/694949/how-to-escape-spaces-in-file-paths-on-the-windows-command-line/) pour plus de precisions). Vous pouvez sinon utiliser Tab (Tabulation) pour avoir une auto-completion des fichiers. Le plus simple est certainement des nommer les fichiers sans espace.
 - Astuce: a la place des noms d'arguments longs, vous pouvez utiliser `-c`, `-d`, `-r`.
+
+## Erreurs communes
+
+- Attention a bien utiliser des valeurs dans le fichier de donnees et non des formules.
 
 ## Config
 - une ou deux lignes exactement dans le fichier (apres l'en-tete) par defaut
@@ -49,6 +53,10 @@ Exemple: une config "Keratine" selectionnera les cellules "KERATINE", "Keratinea
 - be careful to close excel files after saving config or modifications in data
 - be careful when indicating files path, to use escape spaces in file names. Or you can just rely on auto-completion by using Tab (Tabulation).
 - Tip: instead of long arguments name, you can use `-c`, `-d`, `-r`.
+
+## Common mistakes
+
+- Be careful to only use values in the data file and not formulas.
 
 ## Config:
 
