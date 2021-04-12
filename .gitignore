@@ -144,5 +144,8 @@ cython_debug/
 *.xlsx#
 *.csv
 
-# Curren notebooks (maybe to refine)
+# Current notebooks (maybe to refine)
 *.ipynb
+
+# Cache for geopy
+cache/
